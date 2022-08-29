@@ -1,16 +1,36 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from PySide6 import QtCore, QtWidgets, QtGui
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+class MainUI(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        with open("./style/main.stylesheet") as file:
+            self.setStyleSheet(file.read())
+
+        self.textEditor = QtWidgets.QPlainTextEdit()
+        self.setCentralWidget(self.textEditor)
+
+        self.top_toolBar = QtWidgets.QToolBar()
+        self.top_toolBar.setMovable(False)
+        self.addToolBar(QtCore.Qt.TopToolBarArea, self.top_toolBar)
+
+        self.bottom_toolBar = QtWidgets.QToolBar()
+        self.top_toolBar.setMovable(False)
+        self.addToolBar(QtCore.Qt.BottomToolBarArea, self.bottom_toolBar)
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def main():
+    app = QtWidgets.QApplication([])
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    ui = MainUI()
+    ui.resize(800, 600)
+    ui.show()
+
+    app.exec()
+
+
+if __name__ == "__main__":
+    main()
+
+
