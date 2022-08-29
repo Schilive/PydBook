@@ -1,0 +1,8 @@
+QPlainTextEdit {border: none;
+background: #D3D3D3;
+color: black;
+font-size: 11pt;
+font: arial}
+
+QToolBar {background: grey}
+
