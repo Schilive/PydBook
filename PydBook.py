@@ -31,6 +31,9 @@ class MainUI(QtWidgets.QMainWindow):
         self.bottom_toolbar = QtWidgets.QToolBar()
         self.bottom_toolbar.setMovable(False)
         self.addToolBar(QtCore.Qt.BottomToolBarArea, self.bottom_toolbar)
+        self.bottom_toolBar = QtWidgets.QToolBar()
+        self.bottom_toolbar.setMovable(False)
+        self.addToolBar(QtCore.Qt.BottomToolBarArea, self.bottom_toolBar)
 
 
 class ErrorMessage(QtWidgets.QMessageBox):
