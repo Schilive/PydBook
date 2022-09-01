@@ -21,6 +21,7 @@ class MainUI(QtWidgets.QMainWindow):
         # UI Widgets
 
         self.text_editor = QtWidgets.QPlainTextEdit()
+        self.text_editor.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.setCentralWidget(self.text_editor)
 
         self.top_toolbar = QtWidgets.QToolBar()
@@ -28,7 +29,7 @@ class MainUI(QtWidgets.QMainWindow):
         self.addToolBar(QtCore.Qt.TopToolBarArea, self.top_toolbar)
 
         self.bottom_toolBar = QtWidgets.QToolBar()
-        self.top_toolbar.setMovable(False)
+        self.bottom_toolbar.setMovable(False)
         self.addToolBar(QtCore.Qt.BottomToolBarArea, self.bottom_toolBar)
 
 
