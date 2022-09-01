@@ -1,16 +1,10 @@
 QPlainTextEdit {border: none;
 background: #D3D3D3;
-<<<<<<< HEAD
 color: black;
 font-size: 11pt;
 font: arial;
 overflow: scroll;}
 
 QToolBar {background: grey;}
-=======
 color: red;
 font-size: 11pt}
-
-QToolBar {background: grey}
->>>>>>> 43f96c029f0925ada2778cece8624a564de5e2d2
-
