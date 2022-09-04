@@ -28,4 +28,3 @@ color: #e0e0e0;
 font: arial;}
 QMenu:selected {background: #e0e0e0;
 color: #3A3B3C;}
-
