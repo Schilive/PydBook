@@ -77,14 +77,16 @@ class MainUI(QtWidgets.QMainWindow):
             self.saved = False
 
             if self.isSaveFile:
-                self.setWindowTitle(f"{self.save_file}* — {APP_TITLE}")
+                file_name = self.save_file.split("/")[-1]
+                self.setWindowTitle(f"{file_name}* — {APP_TITLE}")
             else:
                 self.setWindowTitle(f"Untitled* — {APP_TITLE}")
         else:
             self.saved = True
 
             if self.isSaveFile:
-                self.setWindowTitle(f"{self.save_file} — {APP_TITLE}")
+                file_name = self.save_file.split("/")[-1]
+                self.setWindowTitle(f"{file_name} — {APP_TITLE}")
             else:
                 self.setWindowTitle(f"Untitled — {APP_TITLE}")
 
