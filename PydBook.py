@@ -20,7 +20,7 @@ class MainUI(QtWidgets.QMainWindow):
         self.saved: bool = True  # Whether the current text has been saved, or whether it is blank.
         self.saved_text: str = ""  # This is a bad solution, better would be to save the changes done
 
-        self.standard_font_size = 11
+        self.standard_font_size = 11  # The zoom is done by changing the font size
         self.current_zoom = 100
         self.zoom_percentage_change = 10
         self.maximum_zoom = 500
@@ -309,6 +309,8 @@ class MainUI(QtWidgets.QMainWindow):
         self.close()
 
     def update_zoom(self):
+        """If the variable of how much to zoom has been altered, this function is called. It alters the text size."""
+
         zoom_point = math.floor(self.current_zoom / 100 * self.standard_font_size)
         self.text_editor.setStyleSheet(f"QPlainTextEdit {{font-size: {zoom_point}pt;}}")
 
@@ -329,6 +331,8 @@ class MainUI(QtWidgets.QMainWindow):
         self.update_zoom()
 
     def no_zoom(self):
+        """Alters the zoom to none, or to standard size."""
+
         self.current_zoom = 100
         self.update_zoom()
 
