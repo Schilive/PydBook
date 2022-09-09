@@ -7,34 +7,54 @@ Font Color: #e0e0e0
 Font: arial
 */
 
-QPlainTextEdit {font-size: /* USER-MODIFIABLE, NEXT LINE */
-11pt
-;}
+QPlainTextEdit {
+    font-size:11pt;
+}
 
-QPlainTextEdit {border: none;
-background-color: #262728;
-color: #d0d0d0;
-font: arial;}
+QPlainTextEdit {
+    border: none;
+    background-color: #262728;
+    color: #d0d0d0;
+    font: arial;
+}
 
-QScrollBar {background: #262728;
-width: 8px;}
-QScrollBar::add-page, QScrollBar::sub-page {background: #262728;}
-QScrollBar::handle {background: #3A3B3C;}
+QScrollBar {
+    background: #262728;
+    width: 8px;
+}
+QScrollBar::add-page, QScrollBar::sub-page {
+    background: #262728;
+}
+QScrollBar::handle {
+    background: #3A3B3C;
+}
 
-QMenuBar, QStatusBar {background: #303132;
-border: none;}
-font-size: 8pt;}
-QMenuBar::item {color: #e0e0e0;
-font: arial;}
-QMenuBar::item:selected {background: #e0e0e0;
-color: #3A3B3C;}
-QMenu {background: #303132;
-color: #e0e0e0;
-font: arial;}
-QMenu:selected {background: #e0e0e0;
-color: #3A3B3C;}
+QMenuBar, QStatusBar {
+    background: #303132;
+    border: none;
+    font-size: 8pt;
+}
+QMenuBar::item {
+    color: #e0e0e0;
+    font: arial;
+}
+QMenuBar::item:selected {
+    background: #e0e0e0;
+    color: #3A3B3C;
+}
+QMenu {
+    background: #303132;
+    color: #e0e0e0;
+    font: arial;
+}
+QMenu:selected {
+    background: #e0e0e0;
+    color: #3A3B3C;
+}
 
-#StatusWidget {color: #e0e0e0;}
+#StatusWidget {
+    color: #e0e0e0;
+}
 QStatusBar::item {
     border: none;
 }
