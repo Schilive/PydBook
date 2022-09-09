@@ -52,7 +52,7 @@ QMenu:selected {
     color: #3A3B3C;
 }
 
-#StatusWidget {
+QStatusBar QLabel {
     color: #e0e0e0;
 }
 QStatusBar::item {

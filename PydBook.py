@@ -93,7 +93,6 @@ class MainUI(QtWidgets.QMainWindow):
 
         self.label_zoom = QtWidgets.QLabel()
         self.label_zoom.setText(f"{self.current_zoom}%")
-        self.label_zoom.setObjectName("StatusWidget")
 
         self.statusBar.addPermanentWidget(self.label_zoom)
 
