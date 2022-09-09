@@ -1,4 +1,5 @@
 from PySide6 import QtCore, QtWidgets, QtGui
+import math
 
 # Constants
 APP_TITLE = "PydBook"  # Name of the application, on the titles of the windows, for example.
@@ -11,6 +12,7 @@ class MainUI(QtWidgets.QMainWindow):
         super().__init__()
 
         # Application Variables
+        self.stylesheet_file = "./style/main.stylesheet"
 
         self.isSaveFile: bool = False  # Whether there is a saving file
         self.save_file: str = ""
@@ -18,13 +20,16 @@ class MainUI(QtWidgets.QMainWindow):
         self.saved: bool = True  # Whether the current text has been saved, or whether it is blank.
         self.saved_text: str = ""  # This is a bad solution, better would be to save the changes done
 
+        self.standard_font_size = 11
+        self.current_zoom = 100
+        self.zoom_percentage_change = 10
+        self.maximum_zoom = 500
+        self.minimum_zoom = 10
+
         # UI Settings
         self.setWindowTitle(f"Untitled — {APP_TITLE}")
 
-        stylesheet_file = "./style/main.stylesheet"
-
-        with open(stylesheet_file) as file:
-            self.setStyleSheet(file.read())
+        self.update_style()
 
         # UI Widgets
 
@@ -62,10 +67,39 @@ class MainUI(QtWidgets.QMainWindow):
         self.exit_action.triggered.connect(self.exit)
         self.menuBar_file.addAction(self.exit_action)
 
+        self.menuBar_view = self.menuBar().addMenu("&View")
+        self.menuBar_file.setWindowFlags(self.menuBar_file.windowFlags() | QtCore.Qt.NoDropShadowWindowHint)
+
+        self.zoomIn_action = QtGui.QAction("Zoom In")
+        self.zoomIn_action.setShortcut("Ctrl++")
+        self.zoomIn_action.triggered.connect(self.zoom_in)
+        self.menuBar_view.addAction(self.zoomIn_action)
+
+        self.zoomOut_action = QtGui.QAction("Zoom Out")
+        self.zoomOut_action.setShortcut("Ctrl+-")
+        self.zoomOut_action.triggered.connect(self.zoom_out)
+        self.menuBar_view.addAction(self.zoomOut_action)
+
+        self.menuBar_view.addSeparator()
+
+        self.noZoom_action = QtGui.QAction("No Zoom")
+        self.noZoom_action.triggered.connect(self.no_zoom)
+        self.menuBar_view.addAction(self.noZoom_action)
+
         # Status Bar
 
         self.statusBar = QtWidgets.QStatusBar()
         self.setStatusBar(self.statusBar)
+
+        self.label_zoom = QtWidgets.QLabel()
+        self.label_zoom.setText(f"{self.current_zoom}%")
+        self.label_zoom.setObjectName("StatusWidget")
+
+        self.statusBar.addPermanentWidget(self.label_zoom)
+
+    def update_style(self):
+        with open(file=self.stylesheet_file, mode="r", encoding="utf-8") as file:
+            self.setStyleSheet(file.read())
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.exit()
@@ -271,7 +305,33 @@ class MainUI(QtWidgets.QMainWindow):
 
     @save_warn_if_needed(" Before closing.")
     def exit(self):
+        """Called when the user wants to exit."""
+
         self.close()
+
+    def update_zoom(self):
+        zoom_point = math.floor(self.current_zoom / 100 * self.standard_font_size)
+        self.text_editor.setStyleSheet(f"QPlainTextEdit {{font-size: {zoom_point}pt;}}")
+
+        self.label_zoom.setText(f"{self.current_zoom}%")
+
+    def zoom_in(self):
+        """Zooms in on the text."""
+
+        self.current_zoom = min(self.current_zoom + self.zoom_percentage_change, self.maximum_zoom)
+
+        self.update_zoom()
+
+    def zoom_out(self):
+        """Zooms out on the text."""
+
+        self.current_zoom = max(self.current_zoom - self.zoom_percentage_change, self.minimum_zoom)
+
+        self.update_zoom()
+
+    def no_zoom(self):
+        self.current_zoom = 100
+        self.update_zoom()
 
 
 class WarningMessage(QtWidgets.QMessageBox):
