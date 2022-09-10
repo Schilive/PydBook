@@ -1,0 +1,10 @@
+Untitled
+&File
+&Open
+&Save
+Save &As
+&Exit
+&View
+Zoom In
+Zoom Out
+No Zoom

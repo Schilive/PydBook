@@ -1,0 +1,10 @@
+Sem título
+&Arquivo
+A&brir
+Salvar
+Salvar &Como
+&Sair
+E&xibir
+&Ampliar
+&Reduzir
+Zoom &Padrão
