@@ -101,6 +101,7 @@ class MainUI(QtWidgets.QMainWindow):
             self.setStyleSheet(file.read())
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        event.ignore()
         self.exit()
 
     def text_changed(self):
