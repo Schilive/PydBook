@@ -28,42 +28,52 @@ class PydEditor(QtWidgets.QPlainTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.textChanged.connect(self.text_changed)
+        self.ignore_text_change = False  # When undoing or redoing
+
         # (whether inserted or deleted, character inserted/deleted, character position)
+        self.last_key_event: QtGui.QKeyEvent | None = None
         self.undo_list: list[tuple[bool, str, int]] = []
         self.undo_index = -1
 
     def keyPressEvent(self, e: QtGui.QKeyEvent) -> None:
-        cursor = self.textCursor()
-        print(cursor.selectedText())
+        self.last_key_event = e.clone()
 
         if e.matches(QtGui.QKeySequence.Undo):
             self.undo()
         elif e.matches(QtGui.QKeySequence.Redo):
             self.redo()
+
+        super().keyPressEvent(e)
+
+    def text_changed(self) -> None:
+        if self.ignore_text_change:
+            return
+
+        e = self.last_key_event
+        cursor_position = self.textCursor().position() - 1
+
+        if e.key() == 16777219:  # Backspace
+
+            if cursor_position == 0:
+                super().keyPressEvent(e)
+                return
+            if self.undo_index != len(self.undo_list) - 1:
+                del self.undo_list[self.undo_index + 1:]
+
+            character_position = cursor_position - 1
+            self.undo_list.append((False, self.toPlainText()[character_position], character_position))
+
+            self.undo_index += 1
         else:
+            if self.undo_index != len(self.undo_list) - 1:
+                del self.undo_list[self.undo_index + 1:]
 
-            if e.key() == 16777219:  # Backspace
-                if self.undo_index != len(self.undo_list) - 1:
-                    del self.undo_list[self.undo_index + 1:]
+            self.undo_list.append((True, e.text(), cursor_position))
 
-                cursor_position = self.textCursor().position()
-                character_position = cursor_position - 1
-                self.undo_list.append((False, self.toPlainText()[character_position], character_position))
+            self.undo_index += 1
 
-                self.undo_index += 1
-            elif e.text() == "":
-                pass
-            else:
-                if self.undo_index != len(self.undo_list) - 1:
-                    del self.undo_list[self.undo_index + 1:]
-
-                cursor_position = self.textCursor().position()
-                self.undo_list.append((True, e.text(), cursor_position))
-
-                self.undo_index += 1
-
-            print(self.undo_list)
-            super().keyPressEvent(e)
+        print(self.undo_list)
 
     def undo(self) -> None:
         if self.undo_index < 0:
@@ -76,10 +86,14 @@ class PydEditor(QtWidgets.QPlainTextEdit):
 
         if is_inserted:
             new_text = self.toPlainText()[:character_position] + self.toPlainText()[character_position + 1:]
+            self.ignore_text_change = True
             self.setPlainText(new_text)
+            self.ignore_text_change = False
         else:
-            new_text = self.toPlainText()[:character_position] + character  + self.toPlainText()[character_position:]
+            new_text = self.toPlainText()[:character_position] + character + self.toPlainText()[character_position:]
+            self.ignore_text_change = True
             self.setPlainText(new_text)
+            self.ignore_text_change = False
 
         self.undo_index -= 1
 
@@ -94,10 +108,14 @@ class PydEditor(QtWidgets.QPlainTextEdit):
 
         if is_inserted:
             new_text = self.toPlainText()[:character_position] + character + self.toPlainText()[character_position:]
+            self.ignore_text_change = True
             self.setPlainText(new_text)
+            self.ignore_text_change = False
         else:
             new_text = self.toPlainText()[:character_position] + self.toPlainText()[character_position + 1:]
+            self.ignore_text_change = True
             self.setPlainText(new_text)
+            self.ignore_text_change = False
 
         self.undo_index += 1
 
