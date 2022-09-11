@@ -56,7 +56,6 @@ class PydEditor(QtWidgets.QPlainTextEdit):
         if e.key() == 16777219:  # Backspace
 
             if cursor_position == 0:
-                super().keyPressEvent(e)
                 return
             if self.undo_index != len(self.undo_list) - 1:
                 del self.undo_list[self.undo_index + 1:]
