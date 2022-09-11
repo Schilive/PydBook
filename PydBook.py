@@ -106,7 +106,7 @@ class MainUI(QtWidgets.QMainWindow):
 
         self.exit_action = QtGui.QAction(next(texts))
         self.exit_action.setShortcut("Ctrl+E")
-        self.exit_action.triggered.connect(self.exit)
+        self.exit_action.triggered.connect(self.close)
         self.menuBar_file.addAction(self.exit_action)
 
         self.menuBar_view = self.menuBar().addMenu(next(texts))
@@ -144,7 +144,26 @@ class MainUI(QtWidgets.QMainWindow):
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         event.ignore()
-        self.exit()
+
+        if not self.saved:
+
+            match LANGUAGE:
+                case "en":
+                    second_text = " Before opening a file."
+                case "pt":
+                    second_text = " Antes de abrir o arquivo."
+
+            user_will = self.ask_if_wants_to_save(second_text)
+
+            if user_will == 0 or user_will == QtWidgets.QMessageBox.Cancel:  # Canceled
+                return
+            elif user_will == QtWidgets.QMessageBox.No:  # Not save
+                event.accept()
+            elif user_will == QtWidgets.QMessageBox.Yes:  # Wants to save
+                self.user_save()
+                event.accept()
+        else:
+            event.accept()
 
     def text_changed(self):
         """Called when the text, of 'self.text_editor', changes."""
@@ -395,13 +414,6 @@ class MainUI(QtWidgets.QMainWindow):
         else:
             file.close()
             self.set_saving_file(file_src)
-
-    @save_warn_if_needed({"en": " Before closing.",
-                          "pt": f" Antes de fechar o {APP_TITLE}."})
-    def exit(self):
-        """Called when the user wants to exit."""
-
-        self.close()
 
     def update_zoom(self):
         """If the variable of how much to zoom has been altered, this function is called. It alters the text size."""
