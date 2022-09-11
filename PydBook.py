@@ -32,9 +32,11 @@ class PydEditor(QtWidgets.QPlainTextEdit):
         self.ignore_text_change = False  # When undoing or redoing
 
         # (whether inserted or deleted, character inserted/deleted, character position)
-        self.last_key_event: QtGui.QKeyEvent | None = None
         self.undo_list: list[tuple[bool, str, int]] = []
         self.undo_index = -1
+
+        self.last_key_event: QtGui.QKeyEvent | None = None
+        self.last_deleted_character = ""
 
     def keyPressEvent(self, e: QtGui.QKeyEvent) -> None:
         self.last_key_event = e.clone()
@@ -43,32 +45,36 @@ class PydEditor(QtWidgets.QPlainTextEdit):
             self.undo()
         elif e.matches(QtGui.QKeySequence.Redo):
             self.redo()
+        elif e.key() == 16777219:  # Backspace
+            cursor_position = self.textCursor().position()
+            character_position = cursor_position - 1
+            self.last_deleted_character = self.toPlainText()[character_position]
 
         super().keyPressEvent(e)
+        print(self.undo_list)
 
     def text_changed(self) -> None:
         if self.ignore_text_change:
             return
 
         e = self.last_key_event
-        cursor_position = self.textCursor().position() - 1
+        cursor_position = self.textCursor().position()  # After the modification
 
         if e.key() == 16777219:  # Backspace
 
-            if cursor_position == 0:
-                return
             if self.undo_index != len(self.undo_list) - 1:
                 del self.undo_list[self.undo_index + 1:]
 
-            character_position = cursor_position - 1
-            self.undo_list.append((False, self.toPlainText()[character_position], character_position))
+            character_position = cursor_position
+            self.undo_list.append((False, self.last_deleted_character, character_position))
 
             self.undo_index += 1
         else:
             if self.undo_index != len(self.undo_list) - 1:
                 del self.undo_list[self.undo_index + 1:]
 
-            self.undo_list.append((True, e.text(), cursor_position))
+            character_position = cursor_position - 1
+            self.undo_list.append((True, e.text(), character_position))
 
             self.undo_index += 1
 
