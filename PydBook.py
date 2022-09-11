@@ -24,6 +24,84 @@ APP_TITLE = "PydBook"  # Name of the application, on the titles of the windows, 
 LANGUAGE = get_language()
 
 
+class PydEditor(QtWidgets.QPlainTextEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        # (whether inserted or deleted, character inserted/deleted, character position)
+        self.undo_list: list[tuple[bool, str, int]] = []
+        self.undo_index = -1
+
+    def keyPressEvent(self, e: QtGui.QKeyEvent) -> None:
+        cursor = self.textCursor()
+        print(cursor.selectedText())
+
+        if e.matches(QtGui.QKeySequence.Undo):
+            self.undo()
+        elif e.matches(QtGui.QKeySequence.Redo):
+            self.redo()
+        else:
+
+            if e.key() == 16777219:  # Backspace
+                if self.undo_index != len(self.undo_list) - 1:
+                    del self.undo_list[self.undo_index + 1:]
+
+                cursor_position = self.textCursor().position()
+                character_position = cursor_position - 1
+                self.undo_list.append((False, self.toPlainText()[character_position], character_position))
+
+                self.undo_index += 1
+            elif e.text() == "":
+                pass
+            else:
+                if self.undo_index != len(self.undo_list) - 1:
+                    del self.undo_list[self.undo_index + 1:]
+
+                cursor_position = self.textCursor().position()
+                self.undo_list.append((True, e.text(), cursor_position))
+
+                self.undo_index += 1
+
+            print(self.undo_list)
+            super().keyPressEvent(e)
+
+    def undo(self) -> None:
+        if self.undo_index < 0:
+            return
+
+        last_action = self.undo_list[self.undo_index]
+        is_inserted: bool = last_action[0]
+        character: str = last_action[1]
+        character_position: int = last_action[2]
+
+        if is_inserted:
+            new_text = self.toPlainText()[:character_position] + self.toPlainText()[character_position + 1:]
+            self.setPlainText(new_text)
+        else:
+            new_text = self.toPlainText()[:character_position] + character  + self.toPlainText()[character_position:]
+            self.setPlainText(new_text)
+
+        self.undo_index -= 1
+
+    def redo(self) -> None:
+        if self.undo_index == len(self.undo_list) - 1:
+            return
+
+        next_action = self.undo_list[self.undo_index + 1]
+        is_inserted: bool = next_action[0]
+        character: str = next_action[1]
+        character_position: int = next_action[2]
+
+        if is_inserted:
+            new_text = self.toPlainText()[:character_position] + character + self.toPlainText()[character_position:]
+            self.setPlainText(new_text)
+        else:
+            new_text = self.toPlainText()[:character_position] + self.toPlainText()[character_position + 1:]
+            self.setPlainText(new_text)
+
+        self.undo_index += 1
+
+
 class MainUI(QtWidgets.QMainWindow):
     """This is the main UI, which is the one shown when the app is started, and whereof everything else is son."""
 
@@ -75,7 +153,7 @@ class MainUI(QtWidgets.QMainWindow):
 
         # UI Widgets
 
-        self.text_editor = QtWidgets.QPlainTextEdit()
+        self.text_editor = PydEditor()
         self.text_editor.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.text_editor.textChanged.connect(self.text_changed)
         self.setCentralWidget(self.text_editor)
