@@ -100,6 +100,12 @@ class PydEditor(QtWidgets.QPlainTextEdit):
             self.setPlainText(new_text)
             self.ignore_text_change = False
 
+        # Move cursor to the place where the character was deleted
+
+        self.moveCursor(QtGui.QTextCursor.Start)
+        for _ in range(0, character_position + 1):
+            self.moveCursor(QtGui.QTextCursor.Right)
+
         self.undo_index -= 1
 
     def redo(self) -> None:
@@ -121,6 +127,12 @@ class PydEditor(QtWidgets.QPlainTextEdit):
             self.ignore_text_change = True
             self.setPlainText(new_text)
             self.ignore_text_change = False
+
+        # Move cursor to the place where the character was deleted
+
+        self.moveCursor(QtGui.QTextCursor.Start)
+        for _ in range(0, character_position):
+            self.moveCursor(QtGui.QTextCursor.Right)
 
         self.undo_index += 1
 
