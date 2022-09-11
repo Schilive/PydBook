@@ -4,6 +4,9 @@ A&brir
 Salvar
 Salvar &Como
 &Sair
+&Editar
+&Desfazer
+&Refazer
 E&xibir
 &Ampliar
 &Reduzir

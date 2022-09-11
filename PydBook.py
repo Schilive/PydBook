@@ -222,6 +222,19 @@ class MainUI(QtWidgets.QMainWindow):
         self.exit_action.triggered.connect(self.close)
         self.menuBar_file.addAction(self.exit_action)
 
+        self.menuBar_edit = self.menuBar().addMenu(next(texts))
+        self.menuBar_edit.setWindowFlags(self.menuBar_edit.windowFlags() | QtCore.Qt.NoDropShadowWindowHint)
+
+        self.undo_action = QtGui.QAction(next(texts))
+        self.undo_action.setShortcut("Ctrl+Z")
+        self.undo_action.triggered.connect(self.text_editor.undo)
+        self.menuBar_edit.addAction(self.undo_action)
+
+        self.redo_action = QtGui.QAction(next(texts))
+        self.redo_action.setShortcut("Ctrl+Z")
+        self.redo_action.triggered.connect(self.text_editor.redo)
+        self.menuBar_edit.addAction(self.redo_action)
+
         self.menuBar_view = self.menuBar().addMenu(next(texts))
         self.menuBar_file.setWindowFlags(self.menuBar_file.windowFlags() | QtCore.Qt.NoDropShadowWindowHint)
 

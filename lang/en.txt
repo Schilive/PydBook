@@ -4,6 +4,9 @@ Untitled
 &Save
 Save &As
 &Exit
+&Edit
+&Undo
+&Redo
 &View
 Zoom In
 Zoom Out
