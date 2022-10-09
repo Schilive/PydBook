@@ -8,15 +8,15 @@ def get_language() -> str:
     otherwise the standard language is returned."""
 
     supported_languages: set[str] = {"en", "pt"}
-    standard_lang: str = "en"
+    standard_language: str = "en"
 
-    lang_local: str = locale.getdefaultlocale()[0]  # If the user is in Spain and using English, = en_ES
+    lang_local: str = locale.getdefaultlocale()[0]  # = "en_ES", if the user is in using English in Spain
     lang: str = lang_local.split("_")[0]
 
     if lang in supported_languages:
         return lang
     else:
-        return standard_lang
+        return standard_language
 
 
 # Constants
