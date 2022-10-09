@@ -161,7 +161,7 @@ class MainUI(QtWidgets.QMainWindow):
         self.menuBar_edit.addAction(self.undo_action)
 
         self.redo_action = QtGui.QAction(next(texts))
-        self.redo_action.setShortcut("Ctrl+Z")
+        self.redo_action.setShortcut("Ctrl+Y")
         self.redo_action.triggered.connect(self.text_editor.redo)
         self.menuBar_edit.addAction(self.redo_action)
 
