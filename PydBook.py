@@ -1,6 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 import math  # Only for floor function
 import locale  # For knowing the user's language
+import string_changes  # For undoing-redoing actions on the PydEditor
 
 
 def get_language() -> str:
@@ -29,112 +30,41 @@ class PydEditor(QtWidgets.QPlainTextEdit):
         super().__init__(parent)
 
         self.textChanged.connect(self.text_changed)
-        self.ignore_text_change = False  # When undoing or redoing
 
-        # (whether inserted or deleted, character inserted/deleted, character position)
-        self.undo_list: list[tuple[bool, str, int]] = []
-        self.undo_index = -1
-
-        self.last_key_event: QtGui.QKeyEvent | None = None
-        self.last_deleted_character = ""
+        self.changes_list = string_changes.ChangesList()  # Ordered list of text-modifying actions
+        self.lastText: str = ""  # Temporary variable of the written text after 'text_changed' event finishes
+        self.undo_redoing: bool = False  # If the editor is changing the text for a undo-redoing action
 
     def keyPressEvent(self, e: QtGui.QKeyEvent) -> None:
-        self.last_key_event = e.clone()
-
         if e.matches(QtGui.QKeySequence.Undo):
             self.undo()
+            return
         elif e.matches(QtGui.QKeySequence.Redo):
             self.redo()
-        elif e.key() == 16777219:  # Backspace
-            cursor_position = self.textCursor().position()
-            character_position = cursor_position - 1
-            self.last_deleted_character = self.toPlainText()[character_position]
+            return
 
         super().keyPressEvent(e)
-        print(self.undo_list)
 
     def text_changed(self) -> None:
-        if self.ignore_text_change:
-            return
-
-        e = self.last_key_event
-        cursor_position = self.textCursor().position()  # After the modification
-
-        if e.key() == 16777219:  # Backspace
-
-            if self.undo_index != len(self.undo_list) - 1:
-                del self.undo_list[self.undo_index + 1:]
-
-            character_position = cursor_position
-            self.undo_list.append((False, self.last_deleted_character, character_position))
-
-            self.undo_index += 1
-        else:
-            if self.undo_index != len(self.undo_list) - 1:
-                del self.undo_list[self.undo_index + 1:]
-
-            character_position = cursor_position - 1
-            self.undo_list.append((True, e.text(), character_position))
-
-            self.undo_index += 1
-
-        print(self.undo_list)
+        if not self.undo_redoing:
+            self.changes_list.add_changes(string_changes.get_changes(self.lastText, self.toPlainText()))
+        self.lastText = self.toPlainText()
 
     def undo(self) -> None:
-        if self.undo_index < 0:
-            return
+        self.undo_redoing = True
 
-        last_action = self.undo_list[self.undo_index]
-        is_inserted: bool = last_action[0]
-        character: str = last_action[1]
-        character_position: int = last_action[2]
+        self.setPlainText(string_changes.remake_str(self.toPlainText(), self.changes_list.get_last_change()))
+        self.changes_list.rollback_changes()
 
-        if is_inserted:
-            new_text = self.toPlainText()[:character_position] + self.toPlainText()[character_position + 1:]
-            self.ignore_text_change = True
-            self.setPlainText(new_text)
-            self.ignore_text_change = False
-        else:
-            new_text = self.toPlainText()[:character_position] + character + self.toPlainText()[character_position:]
-            self.ignore_text_change = True
-            self.setPlainText(new_text)
-            self.ignore_text_change = False
-
-        # Move cursor to the place where the character was deleted
-
-        self.moveCursor(QtGui.QTextCursor.Start)
-        for _ in range(0, character_position + 1):
-            self.moveCursor(QtGui.QTextCursor.Right)
-
-        self.undo_index -= 1
+        self.undo_redoing = False
 
     def redo(self) -> None:
-        if self.undo_index == len(self.undo_list) - 1:
-            return
+        self.undo_redoing = True
 
-        next_action = self.undo_list[self.undo_index + 1]
-        is_inserted: bool = next_action[0]
-        character: str = next_action[1]
-        character_position: int = next_action[2]
+        self.setPlainText(string_changes.change_str(self.toPlainText(), self.changes_list.get_next_change()))
+        self.changes_list.roll_forward_changes()
 
-        if is_inserted:
-            new_text = self.toPlainText()[:character_position] + character + self.toPlainText()[character_position:]
-            self.ignore_text_change = True
-            self.setPlainText(new_text)
-            self.ignore_text_change = False
-        else:
-            new_text = self.toPlainText()[:character_position] + self.toPlainText()[character_position + 1:]
-            self.ignore_text_change = True
-            self.setPlainText(new_text)
-            self.ignore_text_change = False
-
-        # Move cursor to the place where the character was deleted
-
-        self.moveCursor(QtGui.QTextCursor.Start)
-        for _ in range(0, character_position + 1):
-            self.moveCursor(QtGui.QTextCursor.Right)
-
-        self.undo_index += 1
+        self.undo_redoing = False
 
 
 class MainUI(QtWidgets.QMainWindow):
