@@ -149,9 +149,9 @@ class MainUI(QtWidgets.QMainWindow):
 
             match LANGUAGE:
                 case "en":
-                    second_text = " Before opening a file."
+                    second_text = f" Before closing {APP_TITLE}."
                 case "pt":
-                    second_text = " Antes de abrir o arquivo."
+                    second_text = f" Antes de abrir o {APP_TITLE}."
 
             user_will = self.ask_if_wants_to_save(second_text)
 
