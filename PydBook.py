@@ -1,6 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 import math  # Only for floor function
 import locale  # For knowing the user's language
+import string_changes  # For undoing-redoing actions on the PydEditor
 
 
 def get_language() -> str:
@@ -22,6 +23,48 @@ def get_language() -> str:
 # Constants
 APP_TITLE = "PydBook"  # Name of the application, on the titles of the windows, for example.
 LANGUAGE = get_language()
+
+
+class PydEditor(QtWidgets.QPlainTextEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.textChanged.connect(self.text_changed)
+
+        self.changes_list = string_changes.ChangesList()  # Ordered list of text-modifying actions
+        self.lastText: str = ""  # Temporary variable of the written text after 'text_changed' event finishes
+        self.undo_redoing: bool = False  # If the editor is changing the text for a undo-redoing action
+
+    def keyPressEvent(self, e: QtGui.QKeyEvent) -> None:
+        if e.matches(QtGui.QKeySequence.Undo):
+            self.undo()
+            return
+        elif e.matches(QtGui.QKeySequence.Redo):
+            self.redo()
+            return
+
+        super().keyPressEvent(e)
+
+    def text_changed(self) -> None:
+        if not self.undo_redoing:
+            self.changes_list.add_changes(string_changes.get_changes(self.lastText, self.toPlainText()))
+        self.lastText = self.toPlainText()
+
+    def undo(self) -> None:
+        self.undo_redoing = True
+
+        self.setPlainText(string_changes.remake_str(self.toPlainText(), self.changes_list.get_last_change()))
+        self.changes_list.rollback_changes()
+
+        self.undo_redoing = False
+
+    def redo(self) -> None:
+        self.undo_redoing = True
+
+        self.setPlainText(string_changes.change_str(self.toPlainText(), self.changes_list.get_next_change()))
+        self.changes_list.roll_forward_changes()
+
+        self.undo_redoing = False
 
 
 class MainUI(QtWidgets.QMainWindow):
@@ -75,7 +118,7 @@ class MainUI(QtWidgets.QMainWindow):
 
         # UI Widgets
 
-        self.text_editor = QtWidgets.QPlainTextEdit()
+        self.text_editor = PydEditor()
         self.text_editor.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.text_editor.textChanged.connect(self.text_changed)
         self.setCentralWidget(self.text_editor)
@@ -108,6 +151,19 @@ class MainUI(QtWidgets.QMainWindow):
         self.exit_action.setShortcut("Ctrl+E")
         self.exit_action.triggered.connect(self.close)
         self.menuBar_file.addAction(self.exit_action)
+
+        self.menuBar_edit = self.menuBar().addMenu(next(texts))
+        self.menuBar_edit.setWindowFlags(self.menuBar_edit.windowFlags() | QtCore.Qt.NoDropShadowWindowHint)
+
+        self.undo_action = QtGui.QAction(next(texts))
+        self.undo_action.setShortcut("Ctrl+Z")
+        self.undo_action.triggered.connect(self.text_editor.undo)
+        self.menuBar_edit.addAction(self.undo_action)
+
+        self.redo_action = QtGui.QAction(next(texts))
+        self.redo_action.setShortcut("Ctrl+Y")
+        self.redo_action.triggered.connect(self.text_editor.redo)
+        self.menuBar_edit.addAction(self.redo_action)
 
         self.menuBar_view = self.menuBar().addMenu(next(texts))
         self.menuBar_file.setWindowFlags(self.menuBar_file.windowFlags() | QtCore.Qt.NoDropShadowWindowHint)
