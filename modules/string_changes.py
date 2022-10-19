@@ -1,4 +1,5 @@
-# Of Change
+"""Offers functions and classes to deal with changes of characters between two strings."""
+
 
 class Change:
     """One change of characters between two strings, of insertion or deletion."""
