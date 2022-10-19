@@ -1,7 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 import math  # Only for floor function
 import locale  # For knowing the user's language
-import string_changes  # For undoing-redoing actions on the PydEditor
+from modules import string_changes  # For undoing-redoing
 
 
 def get_language() -> str:
