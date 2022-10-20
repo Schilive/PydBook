@@ -6,6 +6,7 @@ def find_occurrences(text: str, find: str, block: bool = False, match_case: bool
 
     Arguments:
         block - If two occurrences overlap, only the first is considered, creating "blocky" occurrences.
+        match_case - The case of 'find' is considered
     """
     if len(find) == 0:
         return []
