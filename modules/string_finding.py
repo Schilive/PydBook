@@ -20,8 +20,7 @@ def find_occurrences(text: str, find: str, block: bool = False) -> list[int]:
 
         if sub_text == find:
             first_indexes.append(first_char_index)
-            first_char_index += len(find) * block
-            continue
+            first_char_index += (len(find) - 1) * block
 
         first_char_index += 1
 
